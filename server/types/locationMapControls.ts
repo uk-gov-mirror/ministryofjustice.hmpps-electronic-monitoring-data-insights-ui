@@ -5,6 +5,7 @@ export interface LocationMapControls {
   tracks: boolean
   confidence: boolean
   numbers: boolean
+  exclusion: boolean
 }
 
 export const defaultLocationMapControls: LocationMapControls = {
@@ -12,4 +13,5 @@ export const defaultLocationMapControls: LocationMapControls = {
   tracks: true,
   confidence: true,
   numbers: true,
+  exclusion: false,
 }

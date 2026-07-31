@@ -12,6 +12,8 @@ import { searchLocationsQuerySchema } from '../../schemas/locationActivity/searc
 import { calculateAge, getDateComponents, parseDateTimeFromISOString } from '../../utils/date'
 import casesLocationLocale from '../cases/cases-location.locale.json'
 import { defaultLocationMapControls, LocationMapControls } from '../../types/locationMapControls'
+import PeopleExclusionService from '../../services/peopleExclusionService'
+import { ApiExclusionZoneResponse } from '../../data/peopleExclusionApiClient'
 
 type SelectedPersonContext = session.SessionData['peopleSelection'][string]
 
@@ -60,6 +62,7 @@ export default class PeopleController {
     private readonly auditService: AuditService,
     private readonly caseLocationActivityService: CaseLocationActivityService,
     private readonly dateSearchValidationService: DateSearchValidationService,
+    private readonly peopleExclusionService: PeopleExclusionService,
   ) {}
 
   private conssumeDateFilterState(req: Request): FilterStateProps {
@@ -169,7 +172,7 @@ export default class PeopleController {
       ...(baseLayer ? { baseLayer } : {}),
     }
 
-    ;(['tracks', 'confidence', 'numbers'] as const).forEach(key => {
+    ;(['tracks', 'confidence', 'numbers', 'exclusion'] as const).forEach(key => {
       const value = this.parseBooleanMapControlValue(queryControls[key])
       if (value !== undefined) {
         controls[key] = value
@@ -236,6 +239,7 @@ export default class PeopleController {
     const { errors: sessionErrors, formData: sessionFormData } = this.conssumeDateFilterState(req)
     let positions: CaseLocationBasePosition[] = []
     let positionCardData: CaseLocationPosition[] = []
+    let exclusionResult: ApiExclusionZoneResponse | null = null
     let validationErrors: ValidationError[] = sessionErrors
     let hasSearched = false
     let locationAlert: { text: string } | null = null
@@ -291,6 +295,10 @@ export default class PeopleController {
                 { crn },
               )
               positionCardData = this.caseLocationActivityService.annotatePositionsWithDisplayProperties(positions)
+              exclusionResult = await this.peopleExclusionService.getExclusionZone(
+                res.locals.user.username,
+                personContext.personId,
+              )
             } catch (error) {
               /* eslint no-console: ["error", { allow: ["warn", "error"] }] */
               console.error('Error fetching locations:', error)
@@ -346,6 +354,7 @@ export default class PeopleController {
       locationAlert,
       mapControls,
       currentUrl: encodeURIComponent(String(req.originalUrl)),
+      exclusionZones: exclusionResult?.exclusionZones ?? null,
     })
   }
 

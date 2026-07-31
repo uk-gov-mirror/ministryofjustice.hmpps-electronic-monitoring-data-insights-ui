@@ -27,6 +27,7 @@ const makeMockMap = (visible = true): EmMap => {
     tracks: makeNativeLayer(visible),
     confidence: makeNativeLayer(visible),
     numbers: makeNativeLayer(visible),
+    exclusion: makeNativeLayer(visible),
   }
 
   return {
@@ -81,6 +82,7 @@ describe('MapLayersControl', () => {
           tracks: false,
           confidence: true,
           numbers: false,
+          exclusion: false,
         },
       })
 
@@ -113,6 +115,7 @@ describe('MapLayersControl', () => {
           tracks: false,
           confidence: true,
           numbers: false,
+          exclusion: false,
         },
       })
 
@@ -136,6 +139,7 @@ describe('MapLayersControl', () => {
           tracks: true,
           confidence: true,
           numbers: true,
+          exclusion: false,
         },
         onChange,
       })
@@ -149,6 +153,7 @@ describe('MapLayersControl', () => {
         tracks: false,
         confidence: true,
         numbers: true,
+        exclusion: false,
       })
     })
 

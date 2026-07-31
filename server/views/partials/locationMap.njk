@@ -5,10 +5,12 @@
     data-enable-heatmap="{{ enableHeatmap }}"
     data-enable-ping-card-navigation="true"
     data-ping-card-navigation-variant="true"
+    data-exclusion-zones="{{ exclusionZones | dump }}"
     data-map-control-base-layer="{{ mapControls.baseLayer }}"
     data-map-control-tracks="{{ mapControls.tracks }}"
     data-map-control-confidence="{{ mapControls.confidence }}"
     data-map-control-numbers="{{ mapControls.numbers }}"
+    data-map-control-exclusion="{{ mapControls.exclusion }}"å
     role="region"
     aria-label="{{ locale.map.ariaLabel }}" aria-describedby="map-instructions"
     tabindex="0">
@@ -108,12 +110,18 @@
           const sheet = new CSSStyleSheet()
 
           sheet.replaceSync(`
-    .app-map__overlay {
-      border-radius: 16px !important;
-      /* Removed overflow: hidden to allow the triangle pointer to show */
-      min-width: 320px !important;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)) !important;
-    }
+
+          .app-map__viewport {
+              width: 100% !important;
+              height: 100% !important;
+          }
+
+          .app-map__overlay {
+            border-radius: 16px !important;
+            /* Removed overflow: hidden to allow the triangle pointer to show */
+            min-width: 320px !important;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)) !important;
+          }
 
     /* Ensure the header still respects the border radius since we removed overflow:hidden */
     .app-map__overlay-header {

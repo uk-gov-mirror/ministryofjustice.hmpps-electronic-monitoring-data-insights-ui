@@ -177,6 +177,7 @@ describe('initialiseLocationDataView', () => {
           tracks: false,
           confidence: true,
           numbers: false,
+          exclusion: false,
         },
         onChange: expect.any(Function),
       }),
