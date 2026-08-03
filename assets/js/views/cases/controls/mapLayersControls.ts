@@ -19,7 +19,7 @@ interface MapLayersControlOptions {
   tracksLayer: ComposableLayer
   confidenceLayer?: ComposableLayer
   numbersLayer?: ComposableLayer
-  exclusionLayer?: ComposableLayer
+  exclusionLayer?: BaseLayer
   mapContainer: HTMLElement
   map: EmMap
   initialState?: MapControlState
@@ -145,11 +145,7 @@ export default class MapLayersControl extends Control {
       }),
     )
 
-    const bindCheckbox = (
-      id: string,
-      stateKey: 'tracks' | 'confidence' | 'numbers' | 'exclusion',
-      layer?: ComposableLayer,
-    ) => {
+    const bindCheckbox = (id: string, stateKey: 'tracks' | 'confidence' | 'numbers', layer?: ComposableLayer) => {
       const input = panel.querySelector(id) as HTMLInputElement | null
       if (!input || !layer) return
       const nativeLayer = opts.map.getNativeLayer(layer.id)
@@ -161,10 +157,25 @@ export default class MapLayersControl extends Control {
       })
     }
 
+    const bindNativeLayerCheckbox = (id: string, stateKey: 'exclusion', layer?: BaseLayer) => {
+      const input = panel.querySelector(id) as HTMLInputElement | null
+      if (!input) return
+      if (!layer) {
+        input.disabled = true
+        return
+      }
+      layer.setVisible(state[stateKey])
+      input.addEventListener('change', () => {
+        state[stateKey] = input.checked
+        layer.setVisible(input.checked)
+        notifyChange()
+      })
+    }
+
     bindCheckbox('#mlc-tracks', 'tracks', opts.tracksLayer)
     bindCheckbox('#mlc-confidence', 'confidence', opts.confidenceLayer)
     bindCheckbox('#mlc-numbers', 'numbers', opts.numbersLayer)
-    bindCheckbox('#mlc-exclusion', 'exclusion', opts.exclusionLayer)
+    bindNativeLayerCheckbox('#mlc-exclusion', 'exclusion', opts.exclusionLayer)
 
     panel.querySelector('.mlc-panel__close')?.addEventListener('click', () => {
       toggle(panel, openBtn)

@@ -56,6 +56,8 @@ describe('PeopleController', () => {
       searchPeople: jest.fn(),
     } as unknown as jest.Mocked<PeopleService>
 
+    peopleExclusionService = { getExclusionZone: jest.fn() } as unknown as jest.Mocked<PeopleExclusionService>
+
     req = {
       id: 'test-correlation-id',
       params: { delius_id: 'X31092' },
@@ -243,6 +245,7 @@ describe('PeopleController', () => {
           tracks: true,
           confidence: true,
           numbers: true,
+          exclusion: false,
         },
         currentUrl: encodeURIComponent('/people/X31092/locations'),
       }),
