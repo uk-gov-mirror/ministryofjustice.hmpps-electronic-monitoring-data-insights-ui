@@ -4,7 +4,6 @@ import {
   TracksLayer,
   CirclesLayer,
   TextLayer,
-  ComposableLayer,
 } from '@ministryofjustice/hmpps-electronic-monitoring-components/map/layers'
 import { isEmpty } from 'ol/extent'
 import VectorLayer from 'ol/layer/Vector'

@@ -247,6 +247,7 @@ describe('PeopleController', () => {
           numbers: true,
           exclusion: false,
         },
+        exclusionZones: null,
         currentUrl: encodeURIComponent('/people/X31092/locations'),
       }),
     )
