@@ -20,6 +20,7 @@ interface MapLayersControlOptions {
   confidenceLayer?: ComposableLayer
   numbersLayer?: ComposableLayer
   exclusionLayer?: BaseLayer
+  enableExclusionZones?: boolean
   mapContainer: HTMLElement
   map: EmMap
   initialState?: MapControlState
@@ -56,7 +57,7 @@ export default class MapLayersControl extends Control {
 
   private static createPanel(opts: MapLayersControlOptions): { panel: HTMLElement; openBtn: HTMLElement } {
     const state: MapControlState = { ...defaultMapControlState, ...opts.initialState }
-
+    console.log('xxx MapLayersControl initial state:', state)
     const openBtn = document.createElement('button')
     openBtn.setAttribute('aria-label', 'Open layers panel')
     openBtn.className = 'govuk-button mlc-open-btn govuk-button--inverse'
@@ -115,7 +116,9 @@ export default class MapLayersControl extends Control {
           </div>
         </fieldset>
       </div>
-
+      ${
+        opts.enableExclusionZones
+          ? `  
       <hr class="govuk-section-break govuk-section-break--visible mlc-panel__divider">
       <div class="govuk-form-group govuk-!-margin-bottom-0">
         <fieldset class="govuk-fieldset">
@@ -127,9 +130,9 @@ export default class MapLayersControl extends Control {
             </div>
           </div>
         </fieldset>
-      </div>
-      `
-
+      </div>`
+          : ``
+      }`
     const notifyChange = () => opts.onChange?.({ ...state })
 
     opts.streetLayer?.setVisible(state.baseLayer === 'street')
@@ -161,7 +164,6 @@ export default class MapLayersControl extends Control {
       const input = panel.querySelector(id) as HTMLInputElement | null
       if (!input) return
       if (!layer) {
-        input.disabled = true
         return
       }
       layer.setVisible(state[stateKey])

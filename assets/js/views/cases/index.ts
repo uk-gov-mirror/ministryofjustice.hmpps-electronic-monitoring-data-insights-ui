@@ -232,8 +232,7 @@ const initialiseLocationDataView = () => {
 
     let exclusionLayer: VectorLayer | undefined
     const exclusionZonesData = mapContainer.dataset.exclusionZones
-
-    if (exclusionZonesData) {
+    if (exclusionZonesData && mapContainer.dataset.enableExclusionZones === 'true') {
       try {
         const exclusionZones = JSON.parse(exclusionZonesData)
         const polygonZones = (Array.isArray(exclusionZones) ? exclusionZones : []).filter(
@@ -285,6 +284,7 @@ const initialiseLocationDataView = () => {
       confidenceLayer,
       numbersLayer,
       exclusionLayer,
+      enableExclusionZones: mapContainer.dataset.enableExclusionZones === 'true',
       initialState: mapControlState,
       onChange: syncMapControlInputs,
     })

@@ -17,9 +17,11 @@ export default {
   stubFeatureFlags: ({
     enableHeatmap = true,
     enablePingCardNavigation = true,
+    enableExclusionZones = true,
   }: {
     enableHeatmap?: boolean
     enablePingCardNavigation?: boolean
+    enableExclusionZones?: boolean
   } = {}): SuperAgentRequest =>
     stubFor({
       request: {
@@ -32,7 +34,11 @@ export default {
           namespace: {
             key: 'hmpps-electronic-monitoring-data-insights',
           },
-          flags: [flag('enable-heatmap', enableHeatmap), flag('enable-ping-card-navigation', enablePingCardNavigation)],
+          flags: [
+            flag('enable-heatmap', enableHeatmap),
+            flag('enable-ping-card-navigation', enablePingCardNavigation),
+            flag('enable-exclusion-zones', enableExclusionZones),
+          ],
         },
       },
     }),

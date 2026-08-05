@@ -42,7 +42,9 @@
         <input type="hidden" name="mapControls[tracks]" value="{{ mapControls.tracks }}" data-map-control-input="tracks"/>
         <input type="hidden" name="mapControls[confidence]" value="{{ mapControls.confidence }}" data-map-control-input="confidence"/>
         <input type="hidden" name="mapControls[numbers]" value="{{ mapControls.numbers }}" data-map-control-input="numbers"/>
-        <input type="hidden" name="mapControls[exclusion]" value="{{ mapControls.exclusion }}" data-map-control-input="exclusion"/>
+        {% if enableExclusionZones %}
+          <input type="hidden" name="mapControls[exclusion]" value="{{ mapControls.exclusion }}" data-map-control-input="exclusion"/>
+        {% endif %}
         {% if form.showCrn != false %}
           <div class="govuk-form-group">
             {{
