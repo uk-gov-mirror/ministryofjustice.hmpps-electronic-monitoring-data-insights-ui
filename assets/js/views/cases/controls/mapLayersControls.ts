@@ -57,7 +57,6 @@ export default class MapLayersControl extends Control {
 
   private static createPanel(opts: MapLayersControlOptions): { panel: HTMLElement; openBtn: HTMLElement } {
     const state: MapControlState = { ...defaultMapControlState, ...opts.initialState }
-    console.log('xxx MapLayersControl initial state:', state)
     const openBtn = document.createElement('button')
     openBtn.setAttribute('aria-label', 'Open layers panel')
     openBtn.className = 'govuk-button mlc-open-btn govuk-button--inverse'
