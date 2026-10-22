@@ -24,7 +24,7 @@ import MapLayersControl, { MapControlInitialState } from './controls/mapLayersCo
 import { getNavVisibilityState, resolveNavTargetIndex } from '../../utils/pingCard'
 import isHeatmapVisible from './controls/heatmapGradient'
 import BandedHeatmap from './controls/bandedHeatmap'
-import buildExclusionZoneFeatures from '../../utils/exclusionZoneFeatures'
+import { buildExclusionZoneFeatures } from '../../utils/exclusionZoneFeatures'
 import MapFullscreenControl, { mapFullscreenStyles } from './controls/mapFullscreenControl'
 
 type MapAdapter = Parameters<ComposableLayer<HeatmapLayer>['attach']>[0]
@@ -322,7 +322,6 @@ const initialiseLocationDataView = () => {
     if (exclusionZonesData && mapContainer.dataset.enableExclusionZones === 'true') {
       try {
         const features = buildExclusionZoneFeatures(JSON.parse(exclusionZonesData))
-
         if (features.length > 0) {
           exclusionLayer = new VectorLayer({
             source: new VectorSource({ features }),

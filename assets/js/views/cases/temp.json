@@ -1,0 +1,30 @@
+[
+		{
+			"restrictionZoneId": 888008,
+			"restrictionType": "EXCLUSION",
+			"name": "Hither Green",
+			"address": "Hither Green, London SE13, United Kingdom",
+			"geometry": {
+				"crs": {
+					"type": "name",
+					"properties": {
+						"name": "EPSG:4326"
+					}
+				},
+				"coordinates": [
+					-0.0008,
+					51.452
+				],
+				"radiusMetres": 100,
+				"type": "Point"
+			},
+			"schedule": {
+				"activeFrom": "2026-10-01T00:00:00Z",
+				"activeTo": "2026-10-31T23:59:59Z",
+				"applicableFrom": "2026-10-01T00:00:00Z",
+				"applicableTo": "2026-10-31T23:59:59Z",
+				"recursionType": "week_1___1,2,3,4#",
+				"recursionPattern": "week_1___1,2,3,4"
+			}
+		}
+	]

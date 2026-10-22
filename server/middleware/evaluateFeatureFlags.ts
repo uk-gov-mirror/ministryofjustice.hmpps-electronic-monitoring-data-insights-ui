@@ -9,7 +9,8 @@ export default function evaluateFeatureFlags(flagService: FlagService): RequestH
       const flags = await flagService.getFlags({ username: res.locals.user?.username })
       res.locals.flags = flags
       res.locals.enablePingCardNavigation = flags.enablePingCardNavigation
-      res.locals.enableExclusionZones = flags.enableExclusionZones
+      // res.locals.enableExclusionZones = flags.enableExclusionZones
+      res.locals.enableExclusionZones = 'true'
       res.locals.enableHeatmap = flags.enableHeatmap
       res.locals.enablePingCardsUpdate = flags.enablePingCardsUpdate
       next()

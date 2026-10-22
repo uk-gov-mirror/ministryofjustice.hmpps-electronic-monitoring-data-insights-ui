@@ -17,7 +17,7 @@ import BandedHeatmap from './controls/bandedHeatmap'
 import initialiseLocationDataView, { bindPointKeyboardNavigation } from './index'
 import * as utils from '../../utils/utils'
 import MapLayersControl from './controls/mapLayersControls'
-import buildExclusionZoneFeatures from '../../utils/exclusionZoneFeatures'
+import { buildExclusionZoneFeatures } from '../../utils/exclusionZoneFeatures'
 import MapFullscreenControl from './controls/mapFullscreenControl'
 
 interface MockOlMapInstance {
@@ -82,6 +82,7 @@ jest.mock('ol/geom', () => ({
   LineString: jest.fn().mockImplementation(() => ({})),
 }))
 jest.mock('ol/proj', () => ({
+  ...jest.requireActual('ol/proj'),
   fromLonLat: jest.fn((coord: number[]) => coord),
 }))
 jest.mock('ol/style', () => ({

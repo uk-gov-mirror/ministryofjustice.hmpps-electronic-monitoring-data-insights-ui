@@ -14,6 +14,7 @@ import { Geometry } from '../../data/peopleExclusionApiClient'
 import { ApiLocationDataSyncResponse } from '../../data/locationDataSyncApiClient'
 
 jest.mock('../../services/auditService')
+jest.mock('../../services/peopleExclusionService')
 
 describe('PeopleController', () => {
   let peopleService: jest.Mocked<PeopleService>
@@ -60,7 +61,8 @@ describe('PeopleController', () => {
       searchPeople: jest.fn(),
     } as unknown as jest.Mocked<PeopleService>
 
-    peopleExclusionService = { getExclusionZone: jest.fn() } as unknown as jest.Mocked<PeopleExclusionService>
+    peopleExclusionService = new PeopleExclusionService(null) as jest.Mocked<PeopleExclusionService>
+
     locationDataSyncService = {
       getLocationDataSyncStatus: jest.fn(),
     } as unknown as jest.Mocked<LocationDataSyncService>
@@ -465,26 +467,34 @@ describe('PeopleController', () => {
       const mockExclusionZones = [
         {
           restrictionZoneId: 1,
-          restrictionType: 'EXCLUSION' as const,
           name: 'Zone A',
           address: '1 Test St',
           geometry: {} as Geometry,
+          restrictionType: 'EXCLUSION' as const,
           schedule: {
             scheduleType: 'SCHEDULED',
-            activeFrom: '2026-01-12T10:00:00Z',
-            activeTo: '2026-01-14T11:00:00Z',
-            applicableFrom: '2026-01-12T10:00:00Z',
-            applicableTo: '2026-01-14T11:00:00Z',
+            activeFrom: '',
+            activeTo: '',
+            applicableFrom: '',
+            applicableTo: '',
           },
         },
       ]
-      peopleExclusionService.getExclusionZone.mockResolvedValue({
+      peopleExclusionService.getRestrictionZones.mockResolvedValue({
         exclusionZones: mockExclusionZones,
+        inclusionZones: [],
+        nextToken: '',
       })
 
       await controller.location(req as Request, res as Response)
 
-      expect(peopleExclusionService.getExclusionZone).toHaveBeenCalledWith(user.username, '41591', 'X31092')
+      expect(peopleExclusionService.getRestrictionZones).toHaveBeenCalledWith(
+        user.username,
+        '41591',
+        'X31092',
+        false,
+        false,
+      )
       expect(res.render).toHaveBeenCalledWith(
         'pages/personLocation',
         expect.objectContaining({
@@ -496,11 +506,18 @@ describe('PeopleController', () => {
     it('handles service errors gracefully when fetching exclusion zones fails', async () => {
       res.locals.enableExclusionZones = true
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-      peopleExclusionService.getExclusionZone.mockRejectedValue(new Error('Exclusion service down'))
+      peopleExclusionService.getRestrictionZones.mockRejectedValue(new Error('Exclusion service down'))
 
       await controller.location(req as Request, res as Response)
 
-      expect(peopleExclusionService.getExclusionZone).toHaveBeenCalledWith(user.username, '41591', 'X31092')
+      expect(peopleExclusionService.getRestrictionZones).toHaveBeenCalledWith(
+        user.username,
+        '41591',
+        'X31092',
+        false,
+        false,
+      )
+
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching exclusion zones:', expect.any(Error))
       expect(res.render).toHaveBeenCalledWith(
         'pages/personLocation',
@@ -517,7 +534,7 @@ describe('PeopleController', () => {
 
       await controller.location(req as Request, res as Response)
 
-      expect(peopleExclusionService.getExclusionZone).not.toHaveBeenCalled()
+      expect(peopleExclusionService.getRestrictionZones).not.toHaveBeenCalled()
       expect(res.render).toHaveBeenCalledWith(
         'pages/personLocation',
         expect.objectContaining({

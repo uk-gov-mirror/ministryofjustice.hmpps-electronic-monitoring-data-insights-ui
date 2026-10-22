@@ -3,19 +3,13 @@ import type { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients
 import config from '../config'
 import logger from '../../logger'
 
-export type ApiExclusionZone = {
+  
+export type ApiRestrictionZone = {
   name: string
-  address: string
-  geometry: Geometry
-}
-
-export type Geometry =
-  | { type: 'Polygon'; crs?: CoordinateReferenceSystem; coordinates: number[][][] }
-  | { type: 'Point'; crs?: CoordinateReferenceSystem; coordinates: number[]; radiusMetres: number }
-
-export type ApiRestrictionZone = ApiExclusionZone & {
+  address: string 
   restrictionZoneId: number
   restrictionType: 'EXCLUSION' | 'INCLUSION'
+  geometry: Geometry
   schedule: {
     scheduleType: string
     activeFrom: string
@@ -27,7 +21,28 @@ export type ApiRestrictionZone = ApiExclusionZone & {
       daysOfWeek: string[]
     }
   }
+} 
+
+export type RestrictionZonesResult = {
+  exclusionZones: ApiRestrictionZone[]
+  inclusionZones: ApiRestrictionZone[]
+  nextToken: string | null
 }
+
+export type PolygonGeometry = {
+  type: 'Polygon'
+  crs?: CoordinateReferenceSystem
+  coordinates: number[][][]
+}
+
+export type PointGeometry = {
+  type: 'Point'
+  crs?: CoordinateReferenceSystem
+  coordinates: number[] 
+  radiusMetres: number
+}
+
+export type Geometry = PolygonGeometry | PointGeometry
 
 type CoordinateReferenceSystem = {
   type: string
@@ -39,7 +54,8 @@ type CoordinateReferenceSystemProperties = {
 }
 
 export type ApiRestrictionZoneResponse = {
-  restrictionZones: ApiRestrictionZone[]
+  restrictionZones: ApiRestrictionZone[],
+  nextToken: string | null
 }
 
 export default class PeopleExclusionApiClient extends RestClient {
@@ -47,11 +63,17 @@ export default class PeopleExclusionApiClient extends RestClient {
     super('People Exclusion API', config.apis.emdiApi, logger, authenticationClient)
   }
 
-  async getExclusionZone(username: string, personId: string, crn: string): Promise<ApiRestrictionZoneResponse> {
+  async getRestrictionZones(
+    username: string,
+    personId: string,
+    crn: string,
+    exclusions: boolean = false,
+    inclusion: boolean = false,
+  ): Promise<ApiRestrictionZoneResponse> {
     return this.get<ApiRestrictionZoneResponse>(
       {
         path: `/people/${personId}/restrictions`,
-        query: { crn },
+        query: { crn, exclusions, inclusion },
       },
       asSystem(username),
     )

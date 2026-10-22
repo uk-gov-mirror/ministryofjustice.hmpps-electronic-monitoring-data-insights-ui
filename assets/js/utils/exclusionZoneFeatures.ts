@@ -2,6 +2,10 @@ import Feature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import { circular } from 'ol/geom/Polygon'
 
+const DATA_PROJECTION = 'EPSG:4326'
+const MAP_PROJECTION = 'EPSG:3857'
+const CIRCLE_SIDES = 64
+
 type ExclusionZoneData = {
   name: string
   address: string
@@ -10,34 +14,39 @@ type ExclusionZoneData = {
     | { type: 'Point'; coordinates: number[]; radiusMetres: number }
 }
 
-export default function buildExclusionZoneFeatures(zones: ExclusionZoneData[] | null): Feature[] {
-  const geoJson = new GeoJSON()
-  return (zones ?? []).map(zone => {
-    const properties = { name: zone.name, address: zone.address }
-    const { geometry } = zone
-    switch (geometry.type) {
-      case 'Polygon':
-        return geoJson.readFeature(
-          { type: 'Feature', properties, geometry },
-          { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' },
-        ) as Feature
-      case 'Point': {
-        const [longitude, latitude] = geometry.coordinates
-        if (
-          !Number.isFinite(longitude) ||
-          !Number.isFinite(latitude) ||
-          !Number.isFinite(geometry.radiusMetres) ||
-          geometry.radiusMetres <= 0
-        ) {
-          throw new Error(`Invalid point or radius for exclusion zone "${zone.name}"`)
-        }
-        return new Feature({
-          ...properties,
-          geometry: circular([longitude, latitude], geometry.radiusMetres, 64).transform('EPSG:4326', 'EPSG:3857'),
-        })
-      }
-      default:
-        throw new Error(`Unsupported geometry for exclusion zone "${zone.name}"`)
-    }
-  })
+let geoJson: GeoJSON | undefined
+const getGeoJson = (): GeoJSON => {
+  geoJson ??= new GeoJSON()
+  return geoJson
 }
+
+const zoneToFeature = (zone: ExclusionZoneData): Feature | null => {
+  const properties = { name: zone.name, address: zone.address }
+  const { geometry } = zone
+  switch (geometry?.type) {
+    case 'Polygon':
+      return getGeoJson().readFeature(
+        { type: 'Feature', properties, geometry },
+        { dataProjection: DATA_PROJECTION, featureProjection: MAP_PROJECTION },
+      ) as Feature
+
+    case 'Point': {
+      const [lon, lat] = geometry.coordinates ?? []
+      const radius = Number(geometry.radiusMetres)
+      if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(radius) || !(radius > 0)) return null
+
+      const polygon = circular([lon, lat], radius, CIRCLE_SIDES).transform(DATA_PROJECTION, MAP_PROJECTION)
+      return new Feature({ geometry: polygon, ...properties })
+    }
+
+    default:
+      return null
+  }
+}
+
+export const buildExclusionZoneFeatures = (zones: unknown): Feature[] =>
+  (Array.isArray(zones) ? zones : [])
+    .map(zone => zoneToFeature(zone as ExclusionZoneData))
+    .filter((feature): feature is Feature => feature !== null)
+
+export default zoneToFeature

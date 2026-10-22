@@ -14,6 +14,7 @@ describe('PeopleExclusionService', () => {
       recurrence: { weekFrequency: 1, daysOfWeek: ['MONDAY'] },
     }
     const response: ApiRestrictionZoneResponse = {
+      nextToken: null,
       restrictionZones: [
         {
           restrictionZoneId: 1,
@@ -52,28 +53,30 @@ describe('PeopleExclusionService', () => {
         },
       ],
     }
-    const getZone = jest.spyOn(client, 'getExclusionZone').mockResolvedValue(response)
+    const getZone = jest.spyOn(client, 'getRestrictionZones').mockResolvedValue(response)
 
-    const result = await new PeopleExclusionService(client).getExclusionZone('user1', '41591', 'X31092')
+    const result = await new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092', false, false)
 
-    expect(getZone).toHaveBeenCalledWith('user1', '41591', 'X31092')
-    expect(result).toEqual({ exclusionZones: [response.restrictionZones[0], response.restrictionZones[2]] })
+    expect(getZone).toHaveBeenCalledWith('user1', '41591', 'X31092', false, false)
+    expect(result.exclusionZones).toEqual([response.restrictionZones[0], response.restrictionZones[2]])
   })
 
   it('returns no exclusion zones for an empty response', async () => {
     const client = new PeopleExclusionApiClient({} as AuthenticationClient)
-    jest.spyOn(client, 'getExclusionZone').mockResolvedValue({ restrictionZones: [] })
+    jest.spyOn(client, 'getRestrictionZones').mockResolvedValue({ restrictionZones: [], nextToken: null })
 
-    await expect(new PeopleExclusionService(client).getExclusionZone('user1', '41591', 'X31092')).resolves.toEqual({
+    await expect(new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092')).resolves.toEqual({
       exclusionZones: [],
+      inclusionZones: [],
+      nextToken: null,
     })
   })
 
   it('propagates API errors to the controller', async () => {
     const client = new PeopleExclusionApiClient({} as AuthenticationClient)
     const error = new Error('Restriction zones unavailable')
-    jest.spyOn(client, 'getExclusionZone').mockRejectedValue(error)
+    jest.spyOn(client, 'getRestrictionZones').mockRejectedValue(error)
 
-    await expect(new PeopleExclusionService(client).getExclusionZone('user1', '41591', 'X31092')).rejects.toThrow(error)
+    await expect(new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092', true, false)).rejects.toThrow(error)
   })
 })

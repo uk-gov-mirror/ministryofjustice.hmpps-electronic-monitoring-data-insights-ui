@@ -19,9 +19,9 @@ import {
 import casesLocationLocale from '../cases/cases-location.locale.json'
 import { defaultLocationMapControls, heatmapLevelKeys, LocationMapControls } from '../../types/locationMapControls'
 import PeopleExclusionService from '../../services/peopleExclusionService'
-import type { ExclusionZonesResult } from '../../services/peopleExclusionService'
 import LocationDataSyncService from '../../services/locationDataSyncService'
 import { ApiLocationDataSyncResponse } from '../../data/locationDataSyncApiClient'
+import type { RestrictionZonesResult } from '../../data/peopleExclusionApiClient'
 
 type SelectedPersonContext = session.SessionData['peopleSelection'][string]
 
@@ -258,7 +258,7 @@ export default class PeopleController {
     const { errors: sessionErrors, formData: sessionFormData } = this.conssumeDateFilterState(req)
     let positions: CaseLocationBasePosition[] = []
     let positionCardData: CaseLocationPosition[] = []
-    let exclusionResult: ExclusionZonesResult | null = null
+    let restrictionZonesResult: RestrictionZonesResult | null = null
     let validationErrors: ValidationError[] = sessionErrors
     let hasSearched = false
     let locationAlert: { text: string } | null = null
@@ -333,10 +333,14 @@ export default class PeopleController {
 
             if (res.locals.enableExclusionZones) {
               try {
-                exclusionResult = await this.peopleExclusionService.getExclusionZone(
+                const exclusions = req.query.exclusions === 'true'
+                const inclusion = req.query.inclusion === 'true'
+                restrictionZonesResult = await this.peopleExclusionService.getRestrictionZones(
                   res.locals.user.username,
                   personContext.personId,
                   deliusId,
+                  exclusions,
+                  inclusion,
                 )
               } catch (error) {
                 console.error('Error fetching exclusion zones:', error)
@@ -395,7 +399,8 @@ export default class PeopleController {
       locationAlert,
       mapControls,
       currentUrl: encodeURIComponent(String(req.originalUrl)),
-      exclusionZones: exclusionResult?.exclusionZones ?? null,
+      exclusionZones: restrictionZonesResult?.exclusionZones ?? null,
+      inclusionZones: restrictionZonesResult?.inclusionZones ?? null,
       dataFreshness: locationDataSyncResponse,
       dataFreshnessLatestDate: latestPosition ? formatSyncDate(latestPosition) : null,
       dataFreshnessLatestTime: latestPosition ? formatSyncTime(latestPosition) : null,

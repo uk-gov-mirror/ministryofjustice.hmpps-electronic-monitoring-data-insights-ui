@@ -1,17 +1,43 @@
 import type PeopleExclusionApiClient from '../data/peopleExclusionApiClient'
-import type { ApiRestrictionZone } from '../data/peopleExclusionApiClient'
-
-export type ExclusionZonesResult = {
-  exclusionZones: ApiRestrictionZone[]
-}
+import type { RestrictionZonesResult } from '../data/peopleExclusionApiClient'
+import type {
+  ApiRestrictionZone,
+  ApiRestrictionZoneResponse,
+} from '../data/peopleExclusionApiClient'
 
 export default class PeopleExclusionService {
   constructor(private readonly peopleExclusionApiClient: PeopleExclusionApiClient) {}
 
-  async getExclusionZone(username: string, personId: string, crn: string): Promise<ExclusionZonesResult> {
-    const response = await this.peopleExclusionApiClient.getExclusionZone(username, personId, crn)
+  async getRestrictionZones(
+    username: string,
+    personId: string,
+    crn: string,
+    exclusions: boolean = false,
+    inclusion: boolean = false,
+  ): Promise<RestrictionZonesResult> {
+    const response = await this.peopleExclusionApiClient.getRestrictionZones(
+      username,
+      personId,
+      crn,
+      exclusions,
+      inclusion,
+    )
     return {
-      exclusionZones: response.restrictionZones.filter(zone => zone.restrictionType === 'EXCLUSION'),
+      exclusionZones: this.mapRestrictionZones(response).filter(zone => zone.restrictionType === 'EXCLUSION'),
+      inclusionZones: this.mapRestrictionZones(response).filter(zone => zone.restrictionType === 'INCLUSION'),
+      nextToken: response.nextToken,
     }
+  }
+
+  private mapRestrictionZones(response: ApiRestrictionZoneResponse): ApiRestrictionZone[] {
+    const { restrictionZones } = response
+    return (restrictionZones ?? []).map(zone => ({
+      restrictionZoneId: zone.restrictionZoneId, 
+      restrictionType: zone.restrictionType,
+      name: zone.name,
+      address: zone.address,
+      geometry: zone.geometry,
+      schedule: zone.schedule,
+    }))
   }
 }
