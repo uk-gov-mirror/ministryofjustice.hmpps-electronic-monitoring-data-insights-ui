@@ -32,6 +32,9 @@
     "npm": "^10 || ^11"
   },
   "jest": {
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
     "transform": {
       "^.+\\.[tj]sx?$": [
         "ts-jest"

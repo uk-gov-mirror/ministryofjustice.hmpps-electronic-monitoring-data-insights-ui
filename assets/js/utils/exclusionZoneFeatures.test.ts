@@ -48,6 +48,15 @@ describe('buildExclusionZoneFeatures', () => {
     boundary.forEach(coordinate => expect(getDistance(centre, toLonLat(coordinate))).toBeCloseTo(radiusMetres, 3))
   })
 
+  it('skips missing geometries and unsupported geometry types', () => {
+    expect(
+      buildExclusionZoneFeatures([
+        { name: 'Missing geometry' },
+        { name: 'Unsupported geometry', geometry: { type: 'LineString', coordinates: [] } },
+      ]),
+    ).toEqual([])
+  })
+
   it.each([0, -1, NaN, Infinity])('skips an invalid point radius of %s', radiusMetres => {
     expect(
       buildExclusionZoneFeatures([

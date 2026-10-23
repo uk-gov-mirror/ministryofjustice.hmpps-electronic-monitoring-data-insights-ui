@@ -8,10 +8,10 @@ const CIRCLE_SIDES = 64
 
 type ExclusionZoneData = {
   name: string
-  address: string
-  geometry:
+  address?: string
+  geometry?:
     | { type: 'Polygon'; coordinates: number[][][] }
-    | { type: 'Point'; coordinates: number[]; radiusMetres: number }
+    | { type: 'Point'; coordinates: number[]; radiusMetres?: number }
 }
 
 let geoJson: GeoJSON | undefined

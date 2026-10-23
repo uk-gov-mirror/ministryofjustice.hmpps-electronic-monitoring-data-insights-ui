@@ -16,6 +16,7 @@ import { Interaction } from 'ol/interaction'
 import BandedHeatmap from './controls/bandedHeatmap'
 import initialiseLocationDataView, { bindPointKeyboardNavigation } from './index'
 import * as utils from '../../utils/utils'
+import * as exclusionZoneFeatures from '../../utils/exclusionZoneFeatures'
 import MapLayersControl from './controls/mapLayersControls'
 import { buildExclusionZoneFeatures } from '../../utils/exclusionZoneFeatures'
 import MapFullscreenControl from './controls/mapFullscreenControl'
@@ -438,6 +439,44 @@ describe('initialiseLocationDataView', () => {
   })
 
   describe('Exclusion Zones and heatmap feature Flags', () => {
+    it.each([
+      {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-0.1, 51.5],
+            [-0.1, 51.51],
+            [-0.09, 51.51],
+            [-0.1, 51.5],
+          ],
+        ],
+      },
+      { type: 'Point', coordinates: [-0.1, 51.5], radiusMetres: 100 },
+    ])('should pass converted $type features to the map exclusion layer', geometry => {
+      const zones = [{ name: 'Exclusion zone', geometry }]
+      const features = [new Feature()]
+      const buildFeatures = jest
+        .spyOn(exclusionZoneFeatures, 'buildExclusionZoneFeatures')
+        .mockReturnValueOnce(features)
+      mockMapContainer.dataset.exclusionZones = JSON.stringify(zones)
+      mockMapContainer.dataset.enableExclusionZones = 'true'
+      mockMapContainer.dataset.mapControlExclusion = 'true'
+
+      try {
+        initialiseLocationDataView()
+
+        expect(buildFeatures).toHaveBeenCalledWith(zones)
+        expect(VectorSource).toHaveBeenLastCalledWith({ features })
+        const source = jest.mocked(VectorSource).mock.results.at(-1)?.value
+        expect(VectorLayer).toHaveBeenLastCalledWith(expect.objectContaining({ source, visible: true }))
+        const layer = jest.mocked(VectorLayer).mock.results.at(-1)?.value
+        expect(mockMap.addLayer).toHaveBeenCalledWith(layer)
+        expect(MapLayersControl).toHaveBeenCalledWith(expect.objectContaining({ exclusionLayer: layer }))
+      } finally {
+        buildFeatures.mockRestore()
+      }
+    })
+
     it('should override heatmap and exclusion states to false when feature flags are disabled', () => {
       mockMapContainer.dataset.mapControlHeatmap = 'true'
       mockMapContainer.dataset.mapControlExclusion = 'true'

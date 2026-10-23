@@ -38,7 +38,7 @@ export type PolygonGeometry = {
 export type PointGeometry = {
   type: 'Point'
   crs?: CoordinateReferenceSystem
-  coordinates: number[] 
+  coordinates: number[]
   radiusMetres: number
 }
 
