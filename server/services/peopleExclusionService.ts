@@ -13,19 +13,18 @@ export default class PeopleExclusionService {
     personId: string,
     crn: string,
     exclusions: boolean = false,
-    inclusion: boolean = false,
+    inclusions: boolean = false,
   ): Promise<RestrictionZonesResult> {
     const response = await this.peopleExclusionApiClient.getRestrictionZones(
       username,
       personId,
       crn,
       exclusions,
-      inclusion,
+      inclusions,
     )
     return {
       exclusionZones: this.mapRestrictionZones(response).filter(zone => zone.restrictionType === 'EXCLUSION'),
       inclusionZones: this.mapRestrictionZones(response).filter(zone => zone.restrictionType === 'INCLUSION'),
-      nextToken: response.nextToken,
     }
   }
 

@@ -26,7 +26,6 @@ export type ApiRestrictionZone = {
 export type RestrictionZonesResult = {
   exclusionZones: ApiRestrictionZone[]
   inclusionZones: ApiRestrictionZone[]
-  nextToken: string | null
 }
 
 export type PolygonGeometry = {
@@ -54,8 +53,7 @@ type CoordinateReferenceSystemProperties = {
 }
 
 export type ApiRestrictionZoneResponse = {
-  restrictionZones: ApiRestrictionZone[],
-  nextToken: string | null
+  restrictionZones: ApiRestrictionZone[]
 }
 
 export default class PeopleExclusionApiClient extends RestClient {
@@ -68,12 +66,12 @@ export default class PeopleExclusionApiClient extends RestClient {
     personId: string,
     crn: string,
     exclusions: boolean = false,
-    inclusion: boolean = false,
+    inclusions: boolean = false,
   ): Promise<ApiRestrictionZoneResponse> {
     return this.get<ApiRestrictionZoneResponse>(
       {
         path: `/people/${personId}/restrictions`,
-        query: { crn, exclusions, inclusion },
+        query: { crn, exclusions, inclusions },
       },
       asSystem(username),
     )
