@@ -483,7 +483,6 @@ describe('PeopleController', () => {
       peopleExclusionService.getRestrictionZones.mockResolvedValue({
         exclusionZones: mockExclusionZones,
         inclusionZones: [],
-        nextToken: '',
       })
 
       await controller.location(req as Request, res as Response)
