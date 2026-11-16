@@ -54,7 +54,13 @@ describe('PeopleExclusionService', () => {
     }
     const getZone = jest.spyOn(client, 'getRestrictionZones').mockResolvedValue(response)
 
-    const result = await new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092', false, false)
+    const result = await new PeopleExclusionService(client).getRestrictionZones(
+      'user1',
+      '41591',
+      'X31092',
+      false,
+      false,
+    )
 
     expect(getZone).toHaveBeenCalledWith('user1', '41591', 'X31092', false, false)
     expect(result).toEqual({
@@ -78,6 +84,8 @@ describe('PeopleExclusionService', () => {
     const error = new Error('Restriction zones unavailable')
     jest.spyOn(client, 'getRestrictionZones').mockRejectedValue(error)
 
-    await expect(new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092', true, false)).rejects.toThrow(error)
+    await expect(
+      new PeopleExclusionService(client).getRestrictionZones('user1', '41591', 'X31092', true, false),
+    ).rejects.toThrow(error)
   })
 })

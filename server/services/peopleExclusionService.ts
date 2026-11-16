@@ -1,6 +1,6 @@
 import type PeopleExclusionApiClient from '../data/peopleExclusionApiClient'
-import type { RestrictionZonesResult } from '../data/peopleExclusionApiClient'
 import type {
+  RestrictionZonesResult,
   ApiRestrictionZone,
   ApiRestrictionZoneResponse,
 } from '../data/peopleExclusionApiClient'
@@ -31,7 +31,7 @@ export default class PeopleExclusionService {
   private mapRestrictionZones(response: ApiRestrictionZoneResponse): ApiRestrictionZone[] {
     const { restrictionZones } = response
     return (restrictionZones ?? []).map(zone => ({
-      restrictionZoneId: zone.restrictionZoneId, 
+      restrictionZoneId: zone.restrictionZoneId,
       restrictionType: zone.restrictionType,
       name: zone.name,
       address: zone.address,

@@ -3,10 +3,9 @@ import type { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients
 import config from '../config'
 import logger from '../../logger'
 
-  
 export type ApiRestrictionZone = {
   name: string
-  address: string 
+  address: string
   restrictionZoneId: number
   restrictionType: 'EXCLUSION' | 'INCLUSION'
   geometry: Geometry
@@ -21,7 +20,7 @@ export type ApiRestrictionZone = {
       daysOfWeek: string[]
     }
   }
-} 
+}
 
 export type RestrictionZonesResult = {
   exclusionZones: ApiRestrictionZone[]
